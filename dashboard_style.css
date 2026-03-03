@@ -1,0 +1,365 @@
+/* <?php
+include "../db.php";
+
+$id = $_GET['id'];
+
+$result = mysqli_query($conn, "SELECT * FROM student WHERE id='$id'");
+$row = mysqli_fetch_assoc($result);
+
+if(isset($_POST['update'])) {
+
+    $student_id = $_POST['student_id'];
+    $fullname   = $_POST['fullname'];
+    $email      = $_POST['email'];
+    $course     = $_POST['course'];
+
+    mysqli_query($conn, "UPDATE student SET
+        student_id='$student_id',
+        fullname='$fullname',
+        email='$email',
+        course='$course'
+        WHERE id='$id'");
+
+    header("Location: ../index.php");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #8b9dc3 0%, #a78bca 50%, #c895c5 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        ::selection {
+            background: rgba(102, 126, 234, 0.3);
+            color: #2d3748;
+        }
+
+        /* Card container */
+        .form-card {
+            width: 100%;
+            max-width: 520px;
+            padding: 45px 40px;
+
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+
+            animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Icon badge */
+        .icon-badge {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .icon-badge svg {
+            width: 32px;
+            height: 32px;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Heading */
+        h2 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+
+        /* Divider */
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            margin-bottom: 30px;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            stroke: #a0aec0;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            pointer-events: none;
+            transition: stroke 0.3s;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 16px 13px 42px;
+            font-size: 0.97rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2d3748;
+
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+        }
+
+        .form-group input:focus + .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            stroke: #667eea;
+        }
+
+        /* place icon before input using wrapper order fix */
+        .input-wrapper input {
+            order: 2;
+        }
+
+        /* Submit button */
+        .btn-update {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.8px;
+
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-update::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+
+        .btn-update:hover::before {
+            left: 100%;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.55);
+            background: linear-gradient(135deg, #5568d3 0%, #6a3fa0 100%);
+        }
+
+        .btn-update:active {
+            transform: translateY(-1px);
+        }
+
+        /* Back link */
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.88rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #667eea;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 35px 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-card">
+
+    <!-- Icon Badge -->
+    <div class="icon-badge">
+        <svg viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+    </div>
+
+    <h2>Edit Student</h2>
+    <p class="subtitle">Update the student's information below</p>
+    <hr>
+
+    <form method="POST">
+
+        <!-- Student ID -->
+        <div class="form-group">
+            <label for="student_id">Student ID</label>
+            <div class="input-wrapper">
+                <input type="text" id="student_id" name="student_id"
+                       value="<?php echo htmlspecialchars($row['student_id']); ?>"
+                       placeholder="e.g. 2024-00001">
+                <svg class="input-icon" viewBox="0 0 24 24">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <div class="input-wrapper">
+                <input type="text" id="fullname" name="fullname"
+                       value="<?php echo htmlspecialchars($row['fullname']); ?>"
+                       placeholder="e.g. Juan Dela Cruz">
+                <svg class="input-icon" viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+                <input type="email" id="email" name="email"
+                       value="<?php echo htmlspecialchars($row['email']); ?>"
+                       placeholder="e.g. juan@email.com">
+                <svg class="input-icon" viewBox="0 0 24 24">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Course -->
+        <div class="form-group">
+            <label for="course">Course</label>
+            <div class="input-wrapper">
+                <input type="text" id="course" name="course"
+                       value="<?php echo htmlspecialchars($row['course']); ?>"
+                       placeholder="e.g. BSIT">
+                <svg class="input-icon" viewBox="0 0 24 24">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+            </div>
+        </div>
+
+        <button type="submit" name="update" class="btn-update">✦ Update Student</button>
+
+    </form>
+
+    <a href="../index.php" class="back-link">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html> */
